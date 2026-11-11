@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  PROVIDER
+  ADMIN
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  clerkId       String?   @unique
+  name          String?
+  email         String    @unique
+  phone         String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  requests      ServiceRequest[] @relation("UserRequests")
+  workshop      Workshop?
+}
+
+model Workshop {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  user               User               @relation(fields: [userId], references: [id])
+  businessName       String
+  description        String?
+  address            String
+  latitude           Float
+  longitude          Float
+  serviceRadius      Float              // in kilometers
+  servicesOffered    String[]           // e.g., ["towing", "battery", "puncture"]
+  verificationStatus VerificationStatus @default(PENDING)
+  documents          String[]           // URLs to uploaded docs
+  isOnline           Boolean            @default(false)
+  rating             Float              @default(0)
+  totalReviews       Int                @default(0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  requests           ServiceRequest[]   @relation("WorkshopRequests")
+  reviews            Review[]
+}
+
+model ServiceRequest {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation("UserRequests", fields: [userId], references: [id])
+  workshopId    String?
+  workshop      Workshop?     @relation("WorkshopRequests", fields: [workshopId], references: [id])
+  
+  problemType   String        // e.g., "battery", "puncture"
+  description   String?
+  photoUrl      String?
+  latitude      Float
+  longitude     Float
+  status        RequestStatus @default(PENDING)
+  estimatedArrival DateTime?
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  review        Review?
+}
+
+model Review {
+  id               String         @id @default(cuid())
+  serviceRequestId String         @unique
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id])
+  workshopId       String
+  workshop         Workshop       @relation(fields: [workshopId], references: [id])
+  rating           Int
+  comment          String?
+  createdAt        DateTime       @default(now())
+}
