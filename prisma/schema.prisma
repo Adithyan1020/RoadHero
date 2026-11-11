@@ -28,7 +28,7 @@ enum VerificationStatus {
 
 model User {
   id            String    @id @default(cuid())
-  clerkId       String?   @unique
+  authId        String?   @unique // Supabase Auth user id (auth.users.id)
   name          String?
   email         String    @unique
   phone         String?

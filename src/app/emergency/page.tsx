@@ -25,6 +25,8 @@ export default function EmergencyPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [description, setDescription] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     handleGetLocation();
@@ -56,7 +58,8 @@ export default function EmergencyPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+    setSubmitError(null);
+
     try {
       const res = await fetch("/api/requests", {
         method: "POST",
@@ -64,15 +67,21 @@ export default function EmergencyPage() {
         body: JSON.stringify({
           problemType: selectedProblem,
           location,
-          // user details will be added with Clerk later
+          description,
         }),
       });
 
       if (res.ok) {
         setIsSuccess(true);
+      } else if (res.status === 401) {
+        window.location.href = "/login?next=/emergency";
+      } else {
+        const data = await res.json().catch(() => null);
+        setSubmitError(data?.message ?? "Something went wrong. Please try again.");
       }
     } catch (error) {
       console.error(error);
+      setSubmitError("Could not reach the server. Check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -84,7 +93,7 @@ export default function EmergencyPage() {
         <CheckCircle2 className="w-24 h-24 text-green-500 mb-6" />
         <h1 className="text-3xl font-bold mb-4">Request Sent!</h1>
         <p className="text-slate-600 mb-8">
-          We have found available workshops nearby. They have been notified via WhatsApp.
+          We have found available workshops nearby. They have been notified by email.
         </p>
         <div className="w-full h-64 bg-slate-100 rounded-xl overflow-hidden border mb-8 relative">
           <MapWrapper location={location} readOnly />
@@ -157,8 +166,16 @@ export default function EmergencyPage() {
 
             <div className="space-y-4">
               <Label className="text-lg font-bold">Additional details (Optional)</Label>
-              <Textarea placeholder="Describe the issue or any specific tools they might need..." className="resize-none" />
+              <Textarea
+                placeholder="Describe the issue or any specific tools they might need..."
+                className="resize-none"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                maxLength={1000}
+              />
             </div>
+
+            {submitError && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{submitError}</p>}
 
             <Button 
               type="submit" 
