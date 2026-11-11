@@ -17,9 +17,9 @@ export default function ProviderRegisterPage() {
   if (step === 3) {
     return (
       <div className="container max-w-lg mx-auto p-4 py-20 flex flex-col items-center text-center">
-        <CheckCircle2 className="w-24 h-24 text-green-500 mb-6" />
+        <CheckCircle2 className="w-24 h-24 text-forest mb-6" />
         <h1 className="text-3xl font-bold mb-4">Application Submitted!</h1>
-        <p className="text-slate-600 mb-8">
+        <p className="text-muted-foreground mb-8">
           Thank you for applying to join RoadRescue. Our team will review your documents and verify your account within 24-48 hours.
         </p>
         <Button className="w-full" size="lg" onClick={() => window.location.href = "/provider/dashboard"}>
@@ -33,16 +33,16 @@ export default function ProviderRegisterPage() {
     <div className="container max-w-2xl mx-auto p-4 py-12">
       <div className="mb-8 text-center">
         <h1 className="text-4xl font-bold tracking-tight mb-2">Join RoadRescue</h1>
-        <p className="text-slate-600 text-lg">Partner with us and get access to thousands of drivers in need.</p>
+        <p className="text-muted-foreground text-lg">Partner with us and get access to thousands of drivers in need.</p>
       </div>
 
       <div className="flex items-center justify-center gap-4 mb-12">
-        <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${step >= 1 ? "bg-primary text-primary-foreground" : "bg-slate-100 text-slate-400"}`}>1</div>
-        <div className={`h-1 w-16 rounded ${step >= 2 ? "bg-primary" : "bg-slate-100"}`} />
-        <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${step >= 2 ? "bg-primary text-primary-foreground" : "bg-slate-100 text-slate-400"}`}>2</div>
+        <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${step >= 1 ? "bg-forest text-lime" : "bg-fog text-pebble"}`}>1</div>
+        <div className={`h-1 w-16 rounded ${step >= 2 ? "bg-forest" : "bg-fog"}`} />
+        <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold ${step >= 2 ? "bg-forest text-lime" : "bg-fog text-pebble"}`}>2</div>
       </div>
 
-      <Card className="shadow-lg border-t-4 border-t-primary">
+      <Card className="rounded-[28px] p-2 shadow-hairline ring-0">
         <CardHeader>
           <CardTitle className="text-2xl">{step === 1 ? "Business Details" : "Verification Documents"}</CardTitle>
           <CardDescription>
@@ -79,7 +79,7 @@ export default function ProviderRegisterPage() {
 
           {step === 2 && (
             <div className="space-y-6">
-              <div className="p-4 bg-blue-50 text-blue-800 rounded-xl flex items-start gap-3 text-sm">
+              <div className="p-4 bg-mist text-forest rounded-[10px] flex items-start gap-3 text-sm">
                 <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5" />
                 <p>We require a valid business license and insurance proof to ensure trust and safety on our platform.</p>
               </div>
@@ -88,10 +88,10 @@ export default function ProviderRegisterPage() {
                 <div className="space-y-2">
                   <Label>Business License</Label>
                   <Button variant="outline" className="w-full h-20 border-dashed justify-start px-6">
-                    <Upload className="w-5 h-5 mr-4 text-slate-400" />
+                    <Upload className="w-5 h-5 mr-4 text-pebble" />
                     <div className="text-left">
                       <p className="font-medium">Upload License</p>
-                      <p className="text-xs text-slate-500">PDF, JPG or PNG (max 5MB)</p>
+                      <p className="text-xs text-muted-foreground">PDF, JPG or PNG (max 5MB)</p>
                     </div>
                   </Button>
                 </div>
@@ -99,10 +99,10 @@ export default function ProviderRegisterPage() {
                 <div className="space-y-2">
                   <Label>Insurance Proof</Label>
                   <Button variant="outline" className="w-full h-20 border-dashed justify-start px-6">
-                    <Upload className="w-5 h-5 mr-4 text-slate-400" />
+                    <Upload className="w-5 h-5 mr-4 text-pebble" />
                     <div className="text-left">
                       <p className="font-medium">Upload Insurance</p>
-                      <p className="text-xs text-slate-500">PDF, JPG or PNG (max 5MB)</p>
+                      <p className="text-xs text-muted-foreground">PDF, JPG or PNG (max 5MB)</p>
                     </div>
                   </Button>
                 </div>

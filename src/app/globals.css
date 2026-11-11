@@ -4,12 +4,36 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * RoadRescue design tokens
+ * Deep forest green carries weight (text, dark sections, icons);
+ * lime is the single bright accent for primary actions and active states.
+ * Flat surfaces, pill-shaped controls, heavy display type.
+ */
+@theme {
+  --color-forest: #163300;
+  --color-lime: #9fe870;
+  --color-spruce: #054d28;
+  --color-mist: #e2f6d5;
+  --color-alarm: #cb272f;
+  --color-charcoal: #454745;
+  --color-obsidian: #0e0f0c;
+  --color-pebble: #868685;
+  --color-fog: #e8ebe6;
+  --color-paper: #ffffff;
+
+  --shadow-hairline: 0 0 0 1px rgba(14, 15, 12, 0.12);
+  --shadow-panel: 0 6px 20px 0 rgba(0, 0, 0, 0.08);
+  --shadow-float: 0 10px 32px 0 rgba(0, 0, 0, 0.15), 0 40px 40px 0 rgba(0, 0, 0, 0.04);
+}
+
 @theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-heading: var(--font-inter);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -44,87 +68,70 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
   --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-3xl: 28px;
+  --radius-4xl: 32px;
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #ffffff;
+  --foreground: #454745; /* charcoal body text */
+  --card: #ffffff;
+  --card-foreground: #454745;
+  --popover: #ffffff;
+  --popover-foreground: #454745;
+  --primary: #9fe870; /* lime fill for primary actions */
+  --primary-foreground: #163300;
+  --secondary: #e8ebe6; /* fog */
+  --secondary-foreground: #163300;
+  --muted: #e8ebe6;
+  --muted-foreground: #6a6c6a; /* slate */
+  --accent: #e2f6d5; /* mist */
+  --accent-foreground: #163300;
+  --destructive: #cb272f;
+  --border: #e8ebe6;
+  --input: #868685; /* pebble */
+  --ring: #163300;
+  --chart-1: #163300;
+  --chart-2: #9fe870;
+  --chart-3: #054d28;
+  --chart-4: #0b4c72;
+  --chart-5: #868685;
+  --radius: 10px;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #454745;
+  --sidebar-primary: #163300;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e2f6d5;
+  --sidebar-accent-foreground: #163300;
+  --sidebar-border: #e8ebe6;
+  --sidebar-ring: #163300;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
+    font-feature-settings: "calt";
   }
+  body {
+    @apply bg-background text-foreground;
+    letter-spacing: -0.006em;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-obsidian;
+    text-wrap: balance;
+  }
+}
+
+/* Heavy block display type for heroes and section openers */
+@utility display {
+  font-family: var(--font-inter);
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: -0.035em;
 }

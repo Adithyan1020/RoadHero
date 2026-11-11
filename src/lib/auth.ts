@@ -16,7 +16,8 @@ export async function getCurrentUser() {
   const email = claims.email as string | undefined;
   if (!authId || !email) return null;
 
-  const meta = (claims.user_metadata ?? {}) as { name?: string; phone?: string };
+  // Email sign-up stores `name`; Google sign-in provides `full_name` (and usually `name`)
+  const meta = (claims.user_metadata ?? {}) as { name?: string; full_name?: string; phone?: string };
 
   return prisma.user.upsert({
     where: { authId },
@@ -24,7 +25,7 @@ export async function getCurrentUser() {
     create: {
       authId,
       email,
-      name: meta.name ?? null,
+      name: meta.name ?? meta.full_name ?? null,
       phone: meta.phone ?? null,
     },
   });

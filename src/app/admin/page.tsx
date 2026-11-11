@@ -34,52 +34,52 @@ export default function AdminDashboardPage() {
     <div className="container mx-auto p-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-        <p className="text-slate-500">Platform overview and verification management</p>
+        <p className="text-muted-foreground">Platform overview and verification management</p>
       </div>
 
       {/* Analytics Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <Card>
           <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
+            <div className="p-3 bg-mist text-forest rounded-full">
               <Users className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-500">Total Users</p>
+              <p className="text-sm font-medium text-muted-foreground">Total Users</p>
               <h3 className="text-2xl font-bold">1,248</h3>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-green-100 text-green-600 rounded-lg">
+            <div className="p-3 bg-mist text-forest rounded-full">
               <Building2 className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-500">Verified Workshops</p>
+              <p className="text-sm font-medium text-muted-foreground">Verified Workshops</p>
               <h3 className="text-2xl font-bold">42</h3>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-red-100 text-red-600 rounded-lg">
+            <div className="p-3 bg-mist text-forest rounded-full">
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-500">Active Emergencies</p>
+              <p className="text-sm font-medium text-muted-foreground">Active Emergencies</p>
               <h3 className="text-2xl font-bold">7</h3>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-orange-200 shadow-sm bg-orange-50/50">
+        <Card className="bg-forest text-white ring-0">
           <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-orange-100 text-orange-600 rounded-lg">
+            <div className="p-3 bg-lime text-forest rounded-full">
               <FileText className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-600">Pending Verification</p>
-              <h3 className="text-2xl font-bold text-orange-600">12</h3>
+              <p className="text-sm font-medium text-white/75">Pending Verification</p>
+              <h3 className="text-2xl font-bold text-lime">12</h3>
             </div>
           </CardContent>
         </Card>
@@ -94,7 +94,7 @@ export default function AdminDashboardPage() {
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-slate-500 uppercase bg-slate-50">
+              <thead className="text-xs text-muted-foreground uppercase bg-fog/60">
                 <tr>
                   <th className="px-6 py-3 rounded-tl-lg">Workshop Name</th>
                   <th className="px-6 py-3">Services</th>
@@ -105,28 +105,28 @@ export default function AdminDashboardPage() {
               </thead>
               <tbody>
                 {workshops.map((ws) => (
-                  <tr key={ws.id} className="border-b last:border-0 hover:bg-slate-50/50">
+                  <tr key={ws.id} className="border-b last:border-0 hover:bg-mist/40">
                     <td className="px-6 py-4">
                       <p className="font-bold">{ws.name}</p>
-                      <p className="text-slate-500 text-xs">{ws.owner} • {ws.submitted}</p>
+                      <p className="text-muted-foreground text-xs">{ws.owner} • {ws.submitted}</p>
                     </td>
-                    <td className="px-6 py-4 text-slate-600">{ws.services}</td>
+                    <td className="px-6 py-4 text-muted-foreground">{ws.services}</td>
                     <td className="px-6 py-4">
-                      <Button variant="link" size="sm" className="h-auto p-0 text-blue-600">View Docs (2)</Button>
+                      <Button variant="link" size="sm" className="h-auto p-0">View Docs (2)</Button>
                     </td>
                     <td className="px-6 py-4">
                       <Badge variant={ws.status === 'VERIFIED' ? 'default' : ws.status === 'REJECTED' ? 'destructive' : 'secondary'}
-                             className={ws.status === 'VERIFIED' ? 'bg-green-500 hover:bg-green-600' : ws.status === 'PENDING' ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' : ''}>
+                             className={ws.status === 'VERIFIED' ? 'bg-forest text-lime' : ws.status === 'PENDING' ? 'bg-fog text-charcoal' : ''}>
                         {ws.status}
                       </Badge>
                     </td>
                     <td className="px-6 py-4">
                       {ws.status === 'PENDING' && (
                         <div className="flex gap-2">
-                          <Button size="sm" className="bg-green-600 hover:bg-green-700 gap-1" onClick={() => handleVerify(ws.id, 'VERIFIED')}>
+                          <Button size="sm" className="gap-1" onClick={() => handleVerify(ws.id, 'VERIFIED')}>
                             <CheckCircle className="w-4 h-4" /> Approve
                           </Button>
-                          <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 gap-1" onClick={() => handleVerify(ws.id, 'REJECTED')}>
+                          <Button size="sm" variant="outline" className="gap-1 border-alarm text-alarm hover:bg-alarm/10" onClick={() => handleVerify(ws.id, 'REJECTED')}>
                             <XCircle className="w-4 h-4" /> Reject
                           </Button>
                         </div>

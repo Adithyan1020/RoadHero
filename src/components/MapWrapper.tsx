@@ -1,68 +1,102 @@
 "use client";
 
-import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
-import { useCallback, useState } from "react";
+import { GoogleMap, useJsApiLoader, Marker, Circle } from "@react-google-maps/api";
+import { useEffect, useState } from "react";
 
 const containerStyle = {
   width: "100%",
   height: "100%",
 };
 
-const defaultCenter = {
-  lat: 40.7128, // Default to NY, or somewhere generic
-  lng: -74.0060,
-};
+// Shown before we know where the user is: a zoomed-out view of India
+const fallbackCenter = { lat: 20.5937, lng: 78.9629 };
+const FALLBACK_ZOOM = 4;
+const LOCATED_ZOOM = 16;
 
 interface MapWrapperProps {
   location: { lat: number; lng: number } | null;
+  /** Uncertainty of the location in metres; drawn as a circle when it's large */
+  accuracy?: number | null;
   onLocationSelect?: (lat: number, lng: number) => void;
   readOnly?: boolean;
 }
 
-export function MapWrapper({ location, onLocationSelect, readOnly = false }: MapWrapperProps) {
-  const { isLoaded } = useJsApiLoader({
+export function MapWrapper({ location, accuracy = null, onLocationSelect, readOnly = false }: MapWrapperProps) {
+  const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
-  const onLoad = useCallback(function callback(map: google.maps.Map) {
-    const bounds = new window.google.maps.LatLngBounds(location || defaultCenter);
-    map.fitBounds(bounds);
-    // Add a bit of zoom adjust if we just have one point
-    const listener = window.google.maps.event.addListener(map, "idle", function() {
-      if (map.getZoom()! > 15) map.setZoom(15);
-      window.google.maps.event.removeListener(listener);
-    });
-    setMap(map);
-  }, [location]);
+  const showAccuracyCircle = location !== null && accuracy !== null && accuracy > 50;
 
-  const onUnmount = useCallback(function callback(map: google.maps.Map) {
-    setMap(null);
-  }, []);
+  // Move the map whenever the location changes (e.g. after "Locate me").
+  // If the location is a rough guess, zoom out to show the whole uncertain area.
+  useEffect(() => {
+    if (!map || !location) return;
+    if (showAccuracyCircle && accuracy) {
+      const circle = new google.maps.Circle({ center: location, radius: accuracy });
+      const bounds = circle.getBounds();
+      if (bounds) {
+        map.fitBounds(bounds);
+        return;
+      }
+    }
+    map.panTo(location);
+    if ((map.getZoom() ?? 0) < LOCATED_ZOOM - 2) map.setZoom(LOCATED_ZOOM);
+  }, [map, location, accuracy, showAccuracyCircle]);
 
   const handleMapClick = (e: google.maps.MapMouseEvent) => {
     if (readOnly || !onLocationSelect || !e.latLng) return;
     onLocationSelect(e.latLng.lat(), e.latLng.lng());
   };
 
-  return isLoaded ? (
+  if (loadError) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-fog p-4 text-center text-sm text-charcoal">
+        The map couldn&apos;t load. Check your internet connection and reload the page.
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-fog text-pebble">Loading map...</div>
+    );
+  }
+
+  return (
     <GoogleMap
       mapContainerStyle={containerStyle}
-      center={location || defaultCenter}
-      zoom={15}
-      onLoad={onLoad}
-      onUnmount={onUnmount}
+      center={location ?? fallbackCenter}
+      zoom={location ? LOCATED_ZOOM : FALLBACK_ZOOM}
+      onLoad={setMap}
+      onUnmount={() => setMap(null)}
       onClick={handleMapClick}
       options={{
         disableDefaultUI: true,
         zoomControl: true,
+        clickableIcons: false,
       }}
     >
+      {showAccuracyCircle && location && accuracy && (
+        <Circle
+          center={location}
+          radius={accuracy}
+          options={{
+            clickable: false,
+            strokeColor: "#163300",
+            strokeOpacity: 0.5,
+            strokeWeight: 1,
+            fillColor: "#9fe870",
+            fillOpacity: 0.18,
+          }}
+        />
+      )}
       {location && (
-        <Marker 
-          position={location} 
+        <Marker
+          position={location}
           draggable={!readOnly}
           onDragEnd={(e) => {
             if (!readOnly && onLocationSelect && e.latLng) {
@@ -72,9 +106,5 @@ export function MapWrapper({ location, onLocationSelect, readOnly = false }: Map
         />
       )}
     </GoogleMap>
-  ) : (
-    <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
-      Loading map...
-    </div>
   );
 }
