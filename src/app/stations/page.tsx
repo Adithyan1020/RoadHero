@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Navigation } from "lucide-react";
+import { useJsApiLoader } from "@react-google-maps/api";
 import { cn } from "cn";
 import { StationsMap } from "@/components/StationsMap";
 import { useGeolocation, formatDistance } from "@/hooks/useGeolocation";
-import type { Station } from "@/lib/stations";
+import { findStations, type Station } from "@/lib/stations";
 
 type Filter = "all" | "fuel" | "ev";
 
@@ -34,20 +35,25 @@ export default function StationsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const requestId = useRef(0);
 
+  // Same loader id/options as the map components, so the script loads once
+  const { isLoaded: mapsReady } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+  });
+
   const search = useCallback(async (lat: number, lng: number, r: number) => {
     const id = ++requestId.current; // ignore answers to older searches
     setLoading(true);
     setFetchError(null);
     try {
-      const res = await fetch(`/api/stations?lat=${lat}&lng=${lng}&radius=${r}`);
-      const json = await res.json();
+      const results = await findStations(lat, lng, r);
       if (id !== requestId.current) return;
-      if (!res.ok || !json.success) throw new Error(json.message ?? "Something went wrong.");
-      setStations(json.data);
+      setStations(results);
       setSelectedId(null);
     } catch (err) {
       if (id !== requestId.current) return;
-      setFetchError(err instanceof Error ? err.message : "Something went wrong.");
+      console.error("Station search failed:", err);
+      setFetchError("Couldn't load nearby stations. Please try again.");
     } finally {
       if (id === requestId.current) {
         setLoading(false);
@@ -58,10 +64,10 @@ export default function StationsPage() {
 
   // Search whenever the location or radius changes
   useEffect(() => {
-    if (!location) return;
+    if (!location || !mapsReady) return;
     const t = setTimeout(() => search(location.lat, location.lng, radius), 0);
     return () => clearTimeout(t);
-  }, [location, radius, search]);
+  }, [location, radius, search, mapsReady]);
 
   const visible = stations.filter((s) => filter === "all" || s.kind === filter);
   const counts = {
@@ -150,7 +156,7 @@ export default function StationsPage() {
             <p className="py-10 text-charcoal">Press Locate me, or tap the map, to see what&apos;s near you.</p>
           )}
 
-          {loading && <p className="py-10 text-charcoal">Searching nearby... this can take a few seconds.</p>}
+          {loading && <p className="py-10 text-charcoal">Searching nearby...</p>}
 
           {!loading && fetchError && (
             <div className="rounded-[10px] bg-alarm/10 p-4 text-sm text-alarm">
@@ -187,9 +193,8 @@ export default function StationsPage() {
           )}
 
           <p className="mt-6 text-xs text-muted-foreground">
-            Station data © <a href="https://www.openstreetmap.org/copyright" className="underline" target="_blank" rel="noreferrer">OpenStreetMap contributors</a>.
-            Details are added by volunteers, so some stations are missing information. Opening hours and availability
-            aren&apos;t live.
+            Station data from Google Maps. Shows up to 20 of each type, nearest first. Open a station on Google Maps for
+            opening hours, phone number and reviews.
           </p>
         </div>
       </div>
@@ -198,8 +203,7 @@ export default function StationsPage() {
 }
 
 function StationRow({ station: s, selected, onSelect }: { station: Station; selected: boolean; onSelect: () => void }) {
-  const details = s.kind === "ev" ? s.sockets : s.fuels;
-  const directions = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
+  const directions = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}&destination_place_id=${s.id}`;
 
   return (
     <li
@@ -210,26 +214,12 @@ function StationRow({ station: s, selected, onSelect }: { station: Station; sele
         <div className="min-w-0">
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             {s.kind === "ev" ? "EV charging" : "Petrol pump"}
-            {s.brand && <> · {s.brand}</>}
           </p>
           <p className="mt-0.5 font-semibold text-obsidian">{s.name}</p>
           {s.address && <p className="mt-0.5 text-sm text-charcoal">{s.address}</p>}
         </div>
         <p className="shrink-0 font-semibold text-forest">{formatDistance(s.distance)}</p>
       </div>
-
-      {(details.length > 0 || s.openingHours || s.capacity || s.fee) && (
-        <p className="mt-2 text-sm text-charcoal">
-          {[
-            details.join(", "),
-            s.capacity ? `${s.capacity} vehicle${s.capacity > 1 ? "s" : ""} at a time` : null,
-            s.fee === "no" ? "Free" : s.fee === "yes" ? "Paid" : null,
-            s.openingHours === "24/7" ? "Open 24 hours" : s.openingHours ? `Hours: ${s.openingHours}` : null,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
-      )}
 
       <div className="mt-3 flex items-center gap-5 text-sm">
         <a
@@ -241,11 +231,15 @@ function StationRow({ station: s, selected, onSelect }: { station: Station; sele
         >
           Directions
         </a>
-        {s.phone && (
-          <a href={`tel:${s.phone}`} onClick={(e) => e.stopPropagation()} className="font-medium text-forest underline underline-offset-4 hover:no-underline">
-            Call {s.phone}
-          </a>
-        )}
+        <a
+          href={s.mapsUrl}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="font-medium text-forest underline underline-offset-4 hover:no-underline"
+        >
+          Hours &amp; details
+        </a>
       </div>
     </li>
   );
